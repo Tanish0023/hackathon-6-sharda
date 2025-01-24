@@ -17,6 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useTransition } from "react"
 import toast from "react-hot-toast"
+import { useRouter } from "next/navigation"
 
 
 const formSchema = z.object({
@@ -29,7 +30,8 @@ const formSchema = z.object({
 
 export default function SignUpPage() {
     const [isPending, startTransition] = useTransition();
-
+    const router = useRouter();
+    
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -45,8 +47,8 @@ export default function SignUpPage() {
         await axios.post("/api/auth/sign-up", values)
             .then((data) => {
                 console.log(data);
-                toast.success("Login Successful!!")
-                
+                toast.success("Register Successful!!")
+                router.push(`/${data.data.id}`)
             })
             .catch((error) => {
                 console.log(error);

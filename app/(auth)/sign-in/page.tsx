@@ -17,20 +17,24 @@ import {
 import { Input } from "@/components/ui/input"
 import { useTransition } from "react"
 import toast from "react-hot-toast"
+import { redirect, useRouter } from "next/navigation"
 
 
 const formSchema = z.object({
     mobileNo: z.string().min(10, { message: "Mobile number must be of 10 digits." }).max(10),
+    meterId: z.string().min(1, { message: "Meter ID is required and cannot be empty." }),
     password: z.string().min(8, { message: "Password must be at least 8 characters long." }),
 })
 
 export default function SignUpPage() {
     const [isPending, startTransition] = useTransition();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       mobileNo:"",
+      meterId:"",
       password:"",
     },
   })
@@ -40,6 +44,7 @@ export default function SignUpPage() {
         await axios.post("/api/auth/sign-in", values)
             .then((data) => {
                 toast.success("Login Successful!!")
+                router.push(`/${data.data.id}`)
             })
             .catch((error) => {
                 toast.error(`${error.response.data}`) 
@@ -63,6 +68,21 @@ export default function SignUpPage() {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="meterId"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Meter Id</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter your meter Id" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
         <FormField
           control={form.control}

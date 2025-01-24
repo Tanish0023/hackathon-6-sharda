@@ -15,9 +15,10 @@ export async function POST(req:Request){
         const saltRound = parseInt(process.env.SALT_ROUND!);
         const hashedPassword = await bcrypt.hash(password, saltRound);     
         
-        const userExistCheck = await userExist(mobileNo);
+        const userExistCheck = await userExist(meterId);
+        
         if(userExistCheck){
-            return new NextResponse("User Already Exists",{status:404})
+            return new NextResponse("Meter Already Exists",{status:404})
         }
 
         const userDetail = await db.user.create({
@@ -28,7 +29,7 @@ export async function POST(req:Request){
                 meterId
             }
         })
-
+        
         return NextResponse.json(userDetail);
 
     }

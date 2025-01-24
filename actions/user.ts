@@ -3,13 +3,13 @@
 import { db } from "@/lib/db"
 
 export const userExist = async (
-    mobileNo: string,
+    meterId: string
 ) => {
     const userData = await db.user.findUnique({
         where:{
-            mobileNo,
+            meterId
         }
     })
-
+        
     return userData;
 }
