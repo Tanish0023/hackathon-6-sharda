@@ -10,22 +10,21 @@ generator client {
 model User {
     id       String @id @default(auto()) @map("_id") @db.ObjectId
     name     String
-    email    String @unique
-    mobileNo String
+    mobileNo String @unique
     password String
-    meterId  String
+    meterId  String @unique
 
-    tempUnits  Float
-    totalUnits Float
+    tempUnits  Float? @default(0)
+    totalUnits Float? @default(0)
 
-    buyerCredit  Int
-    SellerCredit Int
+    buyerCredit  Int? @default(0)
+    SellerCredit Int? @default(0)
 
-    longitude String
-    latitude  String
+    longitude String?
+    latitude  String?
 
-    publicKey  String
-    privateKey String
+    publicKey  String?
+    privateKey String?
 
     createdAt DateTime @default(now())
     updateAt  DateTime @updatedAt
