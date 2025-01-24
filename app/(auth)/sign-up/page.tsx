@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import axios from "axios"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import axios from "axios";
 
-import { Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -13,47 +13,89 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { useTransition } from "react"
-import toast from "react-hot-toast"
-import { useRouter } from "next/navigation"
-
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { useTransition, useState } from "react";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-    name: z.string().min(1, { message: "Name is required and cannot be empty." }),
-    // email: z.string().email({ message: "Invalid email format. Please provide a valid email address." }),
-    mobileNo: z.string().min(10, { message: "Mobile number must be of 10 digits." }).max(10),
-    password: z.string().min(8, { message: "Password must be at least 8 characters long." }),
-    meterId: z.string().min(1, { message: "Meter ID is required and cannot be empty." }),
-})
+  name: z.string().min(1, { message: "Name is required and cannot be empty." }),
+  mobileNo: z
+    .string()
+    .min(10, { message: "Mobile number must be of 10 digits." })
+    .max(10),
+  password: z
+    .string()
+    .min(8, { message: "Password must be at least 8 characters long." }),
+  meterId: z
+    .string()
+    .min(1, { message: "Meter ID is required and cannot be empty." }),
+});
 
 export default function SignUpPage() {
-    const [isPending, startTransition] = useTransition();
-    const router = useRouter();
-    
-    const form = useForm<z.infer<typeof formSchema>>({
+  const [isPending, startTransition] = useTransition();
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const router = useRouter();
+
+  const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      mobileNo:"",
-      password:"",
-      meterId:"",
+      mobileNo: "",
+      password: "",
+      meterId: "",
     },
-  })
- 
+  });
+
+  // Wrapper for geolocation
+  const getLocation = (): Promise<GeolocationPosition> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by your browser."));
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => resolve(position),
+        (error) => reject(error)
+      );
+    });
+  };
+
+  // Add location
+  async function addLocation() {
+    try {
+      const position = await getLocation();
+      setLatitude(position.coords.latitude);
+      setLongitude(position.coords.longitude);
+      toast.success("Location added successfully!");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to get your current location.");
+    }
+  }
+
+  // Submit handler
   function onSubmit(values: z.infer<typeof formSchema>) {
-    startTransition(async ()=> {
-        await axios.post("/api/auth/sign-up", values)
-            .then((data) => {              
-                toast.success("Register Successful!!")
-                router.push(`/${data.data.userData.id}`)
-            })
-            .catch((error) => {
-              const errorMessage = error?.response?.data || "Some Error occured";
-              toast.error(`${errorMessage}` ) 
-            })
-    })
+    if (!latitude || !longitude) {
+      toast.error("Please add your location before submitting the form.");
+      return;
+    }
+
+    const value = { ...values, longitude, latitude };
+    startTransition(async () => {
+      await axios
+        .post("/api/auth/sign-up", value)
+        .then((data) => {
+          toast.success("Registration Successful!");
+          router.push(`/${data.data.userData.userId}`);
+        })
+        .catch((error) => {
+          const errorMessage = error?.response?.data || "An error occurred.";
+          toast.error(errorMessage);
+        });
+    });
   }
 
   return (
@@ -72,20 +114,6 @@ export default function SignUpPage() {
             </FormItem>
           )}
         />
-
-        {/* <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter your email" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         <FormField
           control={form.control}
@@ -108,7 +136,11 @@ export default function SignUpPage() {
             <FormItem>
               <FormLabel>Password</FormLabel>
               <FormControl>
-                <Input placeholder="Enter your password here" {...field} />
+                <Input
+                  type="password"
+                  placeholder="Enter your password here"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -129,15 +161,14 @@ export default function SignUpPage() {
           )}
         />
 
+        <Button onClick={addLocation} disabled={isPending}>
+          Add location
+        </Button>
 
-        
-        <Button 
-            type="submit"
-            disabled={isPending}
-        >
-            Submit
+        <Button type="submit" disabled={isPending}>
+          Submit
         </Button>
       </form>
     </Form>
-  )
+  );
 }

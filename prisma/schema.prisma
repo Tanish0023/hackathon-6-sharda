@@ -21,8 +21,8 @@ model User {
     buyerCredit  Int? @default(0)
     SellerCredit Int? @default(0)
 
-    longitude String?
-    latitude  String?
+    longitude Float?
+    latitude  Float?
 
     publicKey  String?
     privateKey String?

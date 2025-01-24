@@ -26,12 +26,13 @@ export async function POST(req:NextRequest){
             return new NextResponse("Password is not correct",{status:404})
         }
         
-        const {name} = userExistCheck;
+        const {id: userId, name} = userExistCheck;
         
         const secret = process.env.JWT_SECRET || "My-secret";
 
         const token = sign(
             {
+                userId,
                 name,
                 mobileNo,
                 meterId
@@ -49,9 +50,10 @@ export async function POST(req:NextRequest){
             path: "/"
         })
 
+        const userData = {userId, name, meterId, mobileNo}
         const response = {
             message: "Authenticated!",
-            userExistCheck
+            userData
         }
 
         return new Response(JSON.stringify(response), {
@@ -61,7 +63,7 @@ export async function POST(req:NextRequest){
 
     }
     catch(error){
-        console.log("[SIGN-UP], ",error);
+        console.error("[SIGN-UP], ",error);
         return new NextResponse("Internal Error",{status:500})
     }
 }
