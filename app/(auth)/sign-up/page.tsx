@@ -45,14 +45,13 @@ export default function SignUpPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     startTransition(async ()=> {
         await axios.post("/api/auth/sign-up", values)
-            .then((data) => {
-                console.log(data);
+            .then((data) => {              
                 toast.success("Register Successful!!")
-                router.push(`/${data.data.id}`)
+                router.push(`/${data.data.userData.id}`)
             })
             .catch((error) => {
-                console.log(error);
-                toast.error(`${error.response.data}`) 
+              const errorMessage = error?.response?.data || "Some Error occured";
+              toast.error(`${errorMessage}` ) 
             })
     })
   }

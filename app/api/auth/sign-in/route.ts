@@ -1,10 +1,12 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt"
 import { userExist } from "@/actions/user";
+import { sign } from "jsonwebtoken";
+import { serialize } from "cookie";
 
-export async function POST(req:Request, res: Response){
-    console.log(req);
-    
+const MAX_AGE = 60 * 60 * 24 * 30;
+
+export async function POST(req:NextRequest){
     try{
         const {
             mobileNo,
@@ -12,7 +14,6 @@ export async function POST(req:Request, res: Response){
             meterId
         } = await req.json();   
         
-
         const userExistCheck = await userExist(meterId);
         if(!userExistCheck){
             return new NextResponse("User does not Exists",{status:404})
@@ -25,9 +26,38 @@ export async function POST(req:Request, res: Response){
             return new NextResponse("Password is not correct",{status:404})
         }
         
-        const {name} = userExistCheck
+        const {name} = userExistCheck;
         
-        return NextResponse.json(userExistCheck);
+        const secret = process.env.JWT_SECRET || "My-secret";
+
+        const token = sign(
+            {
+                name,
+                mobileNo,
+                meterId
+            },
+            secret,{
+                expiresIn: MAX_AGE
+            }
+        );
+
+        const serialized = serialize("Auth", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: MAX_AGE,
+            path: "/"
+        })
+
+        const response = {
+            message: "Authenticated!",
+            userExistCheck
+        }
+
+        return new Response(JSON.stringify(response), {
+            status: 200,
+            headers: {"Set-Cookie": serialized}
+        })
 
     }
     catch(error){

@@ -44,10 +44,13 @@ export default function SignUpPage() {
         await axios.post("/api/auth/sign-in", values)
             .then((data) => {
                 toast.success("Login Successful!!")
-                router.push(`/${data.data.id}`)
+                router.push(`/${data.data.userExistCheck.id}`)
             })
             .catch((error) => {
-                toast.error(`${error.response.data}`) 
+              console.log(error);
+              
+                const errorMessage = error?.response?.data || "Some Error occured";
+                toast.error(`${errorMessage}` ) 
             })
     })
   }

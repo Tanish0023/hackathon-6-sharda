@@ -8,11 +8,12 @@ generator client {
 }
 
 model User {
-    id       String @id @default(auto()) @map("_id") @db.ObjectId
-    name     String
-    mobileNo String @unique
-    password String
-    meterId  String @unique
+    id        String  @id @default(auto()) @map("_id") @db.ObjectId
+    name      String
+    mobileNo  String  @unique
+    password  String
+    meterId   String  @unique
+    isSelling Boolean @default(false)
 
     tempUnits  Float? @default(0)
     totalUnits Float? @default(0)

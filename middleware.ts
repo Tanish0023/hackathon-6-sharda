@@ -1,43 +1,27 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+
+const allowedPaths = ['/sign-in', '/sign-up', '/_next', '/favicon.ico', '/api']; // Public routes and assets
 
 export function middleware(request: NextRequest) {
-//   const { pathname } = request.nextUrl;
+  const { pathname } = request.nextUrl; // Current route path
+  const authToken = request.cookies.get('Auth'); // Get auth token from cookies
 
-//   // Allow unprotected routes (e.g., sign-in and sign-up)
-//   const unprotectedRoutes = ["/sign-in", "/sign-up"];
-//   if (unprotectedRoutes.includes(pathname)) {
-//     return NextResponse.next();
-//   }
+  // Always allow public routes (sign-in, sign-up, static files, etc.)
+  if (allowedPaths.some((path) => pathname.startsWith(path))) {
+    return NextResponse.next();
+  }
 
-//   // Retrieve the token from cookies
-//   const token = request.cookies.get("session")?.value;
+  // If user is authenticated, allow access to protected routes
+  if (authToken) {
+    return NextResponse.next();
+  }
 
-//   if (!token) {
-//     // Redirect to sign-in if the token is missing
-//     const signInUrl = new URL("/sign-in", request.url);
-//     signInUrl.searchParams.set("callbackUrl", request.url); // Redirect back after login
-//     return NextResponse.redirect(signInUrl);
-//   }
+  // If user is not authenticated and trying to access a protected route, redirect to sign-in
+  const signInUrl = new URL('/sign-in', request.url);
+  return NextResponse.redirect(signInUrl);
+}
 
-//   try {
-//     // Verify the token using your secret key
-//     jwt.verify(token, process.env.JWT_SECRET!);
-//     return NextResponse.next(); // Token is valid, allow access
-//   } catch (err) {
-//     // Redirect to sign-in if the token is invalid or expired
-//     const signInUrl = new URL("/sign-in", request.url);
-//     signInUrl.searchParams.set("callbackUrl", request.url); // Redirect back after login
-//     return NextResponse.redirect(signInUrl);
-//   }
-// }
-
-// export const config = {
-//   matcher: [
-//     /*
-//      * Match all paths except API routes, static files, and unprotected routes
-//      */
-//     "/((?!api|_next|static|favicon.ico|sign-in|sign-up).*)",
-//   ],
+// Apply middleware to all routes
+export const config = {
+  matcher: '/:path*', // Match all routes
 };
