@@ -4,21 +4,16 @@ import {ethers} from "ethers";
 import crypto from "crypto";
 
 export async function generateKeyPair() {
-  // Generate a new wallet
-    console.log("Hello ");
-
     const wallet = ethers.Wallet.createRandom();
 
     // Extract the public and private keys
     const privateKey = wallet.privateKey; // Private key
     const publicKey = wallet.address;    // Public key (Ethereum address)
-
+      
     console.log("Public Key (Address):", publicKey);
     console.log("Private Key:", privateKey); 
     
     const cipherPrivateKey = encrypt(privateKey);
-
-    
 
     return { publicKey, cipherPrivateKey };
 }

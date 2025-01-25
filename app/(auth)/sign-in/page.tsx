@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { useTransition } from "react"
 import toast from "react-hot-toast"
-import { redirect, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 
 const formSchema = z.object({

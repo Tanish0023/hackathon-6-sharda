@@ -31,8 +31,18 @@ model User {
     updateAt  DateTime @updatedAt
 }
 
-// model Seller{
-//     id        String  @id @default(auto()) @map("_id") @db.ObjectId
-//     userId String @db.ObjectId
-//     credits s
-// }
+model Seller {
+    id      String @id @default(auto()) @map("_id") @db.ObjectId
+    userId  String @db.ObjectId
+    meterId String
+    credits Float
+}
+
+model EnergyListing {
+    id             String @id @default(auto()) @map("_id") @db.ObjectId
+    userId         String @db.ObjectId
+    meterId        String
+    credits        Float
+    price          Float
+    pricePerCredit Float
+}
