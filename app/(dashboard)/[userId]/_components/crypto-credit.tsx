@@ -1,6 +1,6 @@
-import { decrypt } from "@/actions/wallet-keys";
-import { db } from "@/lib/db";
 import { ethers } from "ethers";
+import { decrypt } from "@/actions/wallet-keys"; // Assuming this decrypts private keys
+import { db } from "@/lib/db";
 
 const CONTRACT_ADDRESS = "0x3328358128832A260C76A4141e19E2A943CD4B6D";
 const CONTRACT_ABI = [
@@ -162,47 +162,36 @@ const CONTRACT_ABI = [
 	}
 ]
 
-// Initialize a provider and contract instance
-export const getContract = async (privateKey: string) => {	
-  const provider = new ethers.JsonRpcProvider(process.env.NEXT_PUBLIC_PROVIDER_URL);
+export const storeCreditOnBlockchain = async (userId: string, credits: number) => {
+  try {
+    // Fetch user details from your database
+    const user = await db.user.findUnique({
+      where: { id: userId },
+    });
 
-  const privateKeyDecrypted = await decrypt(privateKey);
-  if (!privateKeyDecrypted) {
-	throw new Error("Failed to decrypt the private key.");
+    if (!user) throw new Error("User not found in database");
+
+    // Decrypt user's private key
+    const privateKey = await decrypt(user.privateKey!);
+
+    // Initialize ethers wallet
+    const provider = new ethers.JsonRpcProvider("https://eth-mainnet.g.alchemy.com/v2/5PdkNmU-khw3HZ5uPlRZkVnD9SkG6Bo7"); // Replace with your provider
+    const wallet = new ethers.Wallet(privateKey, provider);
+
+    // Initialize contract
+    const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet);
+
+    // Call storeCredit function
+    const tx = await contract.storeCredit(user.publicKey, credits);
+    console.log("Transaction sent:", tx.hash);
+
+    // Wait for the transaction to be mined
+    const receipt = await tx.wait();
+    console.log("Transaction confirmed:", receipt);
+
+    return receipt;
+  } catch (error) {
+    console.error("Error storing credits on the blockchain:", error);
+    throw error;
   }
-  const wallet = new ethers.Wallet(privateKeyDecrypted, provider);
-
-  // Initialize the contract instance
-  const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, wallet);
-
-  return contract;
 };
-
-export const fetchContractData = async (userId: string) => {
-	try {
-	  const user = await db.user.findUnique({
-		where: { id: userId },
-	  });
-  
-	  if (!user) throw new Error("User not found in database");
-  
-	  if (!ethers.isAddress(user.publicKey)) {
-		throw new Error("Invalid Ethereum address for user.publicKey");
-	  }
-	  
-	  const contract = await getContract(user.privateKey!);
-	  const data = await contract.getCredits(user.publicKey);
-  
-	  if (data.toString() === "0") {
-		console.warn("No credits found for this address on the blockchain.");
-		return 0; // No credits found
-	  }
-  
-	  console.log("Credits on Blockchain:", data);
-	  return data;
-	} catch (error) {
-	  console.error("Error reading contract data:", error);
-	  throw error;
-	}
-  };
-  

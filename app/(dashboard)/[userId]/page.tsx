@@ -36,17 +36,33 @@ export default function Home() {
   }, []);
 
   return (
-    <div>
-      <Button
-        onClick={() => {
-          toast.success("Hello, how are you?");
-        }}
-      >
-        Hello
-      </Button>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-10 px-6">
+      {/* Content Wrapper */}
+      <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+        <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800 dark:text-gray-200">
+          Energy Dashboard
+        </h1>
 
-      <div>
-        <strong>Total Energy supplied to the grid:</strong> {totalEnergy.toFixed(2)} kWh
+        {/* Energy Info Section */}
+        <div className="text-center">
+          <p className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-4">
+            <strong>Total Energy supplied to the grid:</strong>
+          </p>
+          <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+            {totalEnergy.toFixed(2)} kWh
+          </div>
+
+          <p className="mt-4 text-gray-500 dark:text-gray-400">
+            This is the total energy you've supplied to the grid so far. Your energy contribution is helping power the community!
+          </p>
+        </div>
+
+        {/* Action Button (Optional) */}
+        <div className="mt-6 text-center">
+          <Button className="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg shadow-md transition duration-300">
+            Update Energy
+          </Button>
+        </div>
       </div>
     </div>
   );

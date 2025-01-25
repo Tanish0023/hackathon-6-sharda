@@ -1,5 +1,5 @@
 import { db } from "@/lib/db"; // Adjust the path to your Prisma client
-import { triggerBlockchainTransaction } from "@/utils/blockchain";
+import { fetchContractData } from "@/utils/blockchain";
 
 export async function updateUnits(userId: string, credits: number) {
   try {
@@ -23,16 +23,15 @@ export async function updateUnits(userId: string, credits: number) {
 
     // Check if `tempUnits` >= 1
     if (tempUnitsUserData >= 1) {
-      console.log("Triggering blockchain transaction...");
+      // console.log("Triggering blockchain transaction...");
 
-      // Trigger blockchain transaction
-      const blockchainResponse = await triggerBlockchainTransaction(
-        user.publicKey!,
-        user.privateKey!,
-        Math.floor(tempUnitsUserData) // Send full units to the blockchain
-      );
-
-      if (blockchainResponse.success) {
+      // // Trigger blockchain transaction
+      // const blockchainResponse = await fetchContractData(
+      //   user.id
+      // );
+      // console.log(`blockchainResponse: ${blockchainResponse}`);
+      
+      // if (blockchainResponse.success) {
         // Reset `tempUnits` after a successful blockchain transaction
         await db.user.update({
           where: { id: userId },
@@ -46,10 +45,10 @@ export async function updateUnits(userId: string, credits: number) {
           },
         });
 
-        console.log("Blockchain transaction successful and tempUnits reset.");
-      } else {
-        console.error("Blockchain transaction failed.");
-      }
+      //   console.log("Blockchain transaction successful and tempUnits reset.");
+      // } else {
+      //   console.error("Blockchain transaction failed.");
+      // }
     }
   } catch (error) {
     console.error("Error updating units:", error);

@@ -168,7 +168,7 @@ export default function SignUpPage() {
             )}
           />
 
-          <Button onClick={addLocation} disabled={isPending}>
+          <Button onClick={addLocation} disabled={isPending} type="button">
             Add location
           </Button>
 

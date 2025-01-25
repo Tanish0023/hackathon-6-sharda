@@ -18,23 +18,29 @@ export async function generateKeyPair() {
     return { publicKey, cipherPrivateKey };
 }
 
-function encrypt(text:any) {
-    const algorithm = "aes-256-cbc";
-    const key = crypto.randomBytes(32); // Generate a 32-byte key
-    const iv = crypto.randomBytes(16); // Generate a 16-byte IV
+export async function encrypt(plainText: string) {
+    const key = Buffer.from(process.env.ENCRYPTION_KEY!, "hex");
+    const iv = Buffer.from(process.env.ENCRYPTION_IV!, "hex");
 
-    // Encrypt
-    const cipher = crypto.createCipheriv(algorithm, key, iv);
-    let encrypted = cipher.update(text, "utf8", "hex");
+    const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
+
+    let encrypted = cipher.update(plainText, "utf8", "hex");
     encrypted += cipher.final("hex");
 
     return encrypted;
 }
+
   
-// function decrypt(encryptedText, encryptionKey) {
-//     const decipher = crypto.createDecipher("aes-256-cbc", encryptionKey);
-//     let decrypted = decipher.update(encryptedText, "hex", "utf8");
-//     decrypted += decipher.final("utf8");
-//     return decrypted;
-// }
+export async function decrypt(encryptedText: string) {
+    // The encryption key must be 32 bytes (for AES-256)
+    const key = Buffer.from(process.env.ENCRYPTION_KEY!, "hex"); 
+    const iv = Buffer.from(process.env.ENCRYPTION_IV!, "hex"); // The same IV used during encryption
+
+    const decipher = crypto.createDecipheriv("aes-256-cbc", key, iv);
+
+    let decrypted = decipher.update(encryptedText, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+
+    return decrypted;
+}
 

@@ -24,11 +24,12 @@ export async function POST(req: NextRequest) {
         id: userId
       }
     })
-
+        
     const isSelling = user?.isSelling;
     const totalUnits = user?.totalUnits;
+    const SellerCredit = user?.SellerCredit;
     
-    return NextResponse.json({userId, meterId, name, mobileNo, isSelling, totalUnits },{status: 200});
+    return NextResponse.json({userId, meterId, name, mobileNo, isSelling, totalUnits, SellerCredit },{status: 200});
   } catch (error) {
     console.error("Error verifying token:", error);
     return NextResponse.json(

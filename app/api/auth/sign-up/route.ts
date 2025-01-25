@@ -27,6 +27,7 @@ export async function POST(req: Request) {
     }
 
     const {publicKey, cipherPrivateKey } = await generateKeyPair();
+    const cPrivateKey = await cipherPrivateKey;
 
     const userData = await db.user.create({
       data: {
@@ -38,7 +39,7 @@ export async function POST(req: Request) {
         longitude,
         latitude,
         publicKey,
-        privateKey: cipherPrivateKey
+        privateKey: cPrivateKey
       },
     });
     const { id: userId } = userData;

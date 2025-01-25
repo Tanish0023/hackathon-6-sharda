@@ -108,9 +108,9 @@ export default function AlertDialogComp() {
 
       {/* Pop-up trigger for selling */}
       {!isSelling ? (
-        <Button onClick={() => openDialog(true)}>Sell surplus energy</Button>
+        <Button onClick={() => openDialog(true)}>Start supplying</Button>
       ) : (
-        <Button onClick={() => openDialog(false)}>Stop Selling</Button>
+        <Button onClick={() => openDialog(false)}>Stop supplying</Button>
       )}
     </>
   );
