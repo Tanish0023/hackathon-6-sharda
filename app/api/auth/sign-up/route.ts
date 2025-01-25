@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { userExist } from "@/actions/user";
 import { serialize } from "cookie";
 import { sign } from "jsonwebtoken";
+import { generateKeyPair } from "@/actions/wallet-keys";
 
 const MAX_AGE = 60 * 60 * 24 * 30;
 
@@ -25,6 +26,8 @@ export async function POST(req: Request) {
       return new NextResponse("Meter already exists", { status: 400 });
     }
 
+    const {publicKey, cipherPrivateKey } = await generateKeyPair();
+
     const userData = await db.user.create({
       data: {
         name,
@@ -33,7 +36,9 @@ export async function POST(req: Request) {
         meterId,
         isSelling: false,
         longitude,
-        latitude
+        latitude,
+        publicKey,
+        privateKey: cipherPrivateKey
       },
     });
     const { id: userId } = userData;

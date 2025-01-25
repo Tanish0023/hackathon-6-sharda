@@ -24,6 +24,7 @@
     "cookie": "^1.0.2",
     "cookie-parser": "^1.4.7",
     "crypto": "^1.0.1",
+    "ethers": "^6.13.5",
     "jose": "^5.9.6",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.471.1",

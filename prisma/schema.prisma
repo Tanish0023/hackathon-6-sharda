@@ -30,3 +30,9 @@ model User {
     createdAt DateTime @default(now())
     updateAt  DateTime @updatedAt
 }
+
+// model Seller{
+//     id        String  @id @default(auto()) @map("_id") @db.ObjectId
+//     userId String @db.ObjectId
+//     credits s
+// }

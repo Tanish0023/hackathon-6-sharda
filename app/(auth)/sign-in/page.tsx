@@ -56,6 +56,13 @@ export default function SignUpPage() {
   }
 
   return (
+    isPending ? (
+      <div 
+        className="flex items-center justify-center font-bold text-4xl w-full h-full"
+      >
+        Loading....
+      </div>
+    ) : (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
@@ -109,5 +116,6 @@ export default function SignUpPage() {
         </Button>
       </form>
     </Form>
+    )
   )
 }
