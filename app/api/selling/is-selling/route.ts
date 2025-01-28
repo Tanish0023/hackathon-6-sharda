@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
   try {
     const decoded = verify(authCookie, secret) as { userId: string; meterId: string; name: string; mobileNo: string };
 
-    const { userId, meterId } = decoded;
+    const { userId } = decoded;
 
     const user = await db.user.findUnique({
         where:{

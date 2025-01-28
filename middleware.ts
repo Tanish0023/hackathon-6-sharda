@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const allowedPaths = ['/sign-in', '/sign-up', '/_next', '/favicon.ico', '/api']; // Public routes and assets
+const allowedPaths = ['/sign-in', '/sign-up','/' ,'/_next', '/favicon.ico', '/api']; // Public routes and assets
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl; // Current route path

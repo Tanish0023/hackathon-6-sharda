@@ -42,12 +42,14 @@ const Sell = ({ totalCredits }: SellProps) => {
 
   const handleSell = () => {
     if (sellCredit && sellCredit > 0 && sellCredit <= totalCredits) {
-      console.log(`Selling ${sellCredit} credits.`);
       startTransition(async () => {
-        await axios
-          .post("/api/selling/sell")
-          .then(() => toast.success("Energy listed successfully!!"))
-          .catch(() => toast.error("Problem occurred"));
+        try {
+          await axios.post("/api/selling/sell", { sellCredit: sellCredit });
+          toast.success("Energy listed successfully!!");
+        } catch (error) {
+          console.error("Error during API call:", error);
+          toast.error("Problem occurred while listing energy.");
+        }
       });
     }
   };

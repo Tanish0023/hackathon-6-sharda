@@ -14,13 +14,27 @@ const getTotalEnergyUnit = async () => {
   }
 };
 
+const getTotalCreditt = async () => {
+  try {
+    const response = await axios.post("/api/user"); // Adjust API endpoint if necessary
+    return response.data.SellerCredit || 0; // Safely return the totalUnits
+  } catch (error) {
+    console.error("Error fetching total energy units:", error);
+    return 0; // Fallback value in case of error
+  }
+};
+
 export default function Home() {
   const [totalEnergy, setTotalEnergy] = useState(0);
+  const [credits, setcredits] = useState(0);
 
   useEffect(() => {
     const updateEnergyData = async () => {
       const totalUnits = await getTotalEnergyUnit();
       setTotalEnergy(totalUnits);
+
+      const updateTotalCredit = await getTotalCreditt();
+      setcredits(updateTotalCredit)
     };
 
     // Call the function initially
@@ -64,6 +78,34 @@ export default function Home() {
           </Button>
         </div>
       </div>
+
+
+      <div className="max-w-4xl my-2 mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8">
+        <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800 dark:text-gray-200">
+          Credit Dashboard
+        </h1>
+
+        {/* Energy Info Section */}
+        <div className="text-center">
+          <p className="text-xl font-medium text-gray-700 dark:text-gray-300 mb-4">
+            <strong>Total Credits Earned:</strong>
+          </p>
+          <div className="text-4xl font-bold text-blue-600 dark:text-blue-400">
+            {credits} Credits
+          </div>
+
+          <p className="mt-4 text-gray-500 dark:text-gray-400">
+          These are the credits you've earned for contributing energy to the grid. Keep up the great work!</p>
+        </div>
+
+        {/* Action Button (Optional) */}
+        <div className="mt-6 text-center">
+          <Button className="bg-green-600 text-white hover:bg-green-700 px-6 py-3 rounded-lg shadow-md transition duration-300">
+            Update Credits
+          </Button>
+        </div>
+      </div>
+
     </div>
   );
 }
