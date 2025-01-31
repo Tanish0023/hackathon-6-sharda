@@ -14,7 +14,7 @@ export async function POST(req:NextRequest){
             meterId
         } = await req.json();   
         
-        const userExistCheck = await userExist(meterId);
+        const userExistCheck = await userExist(meterId, mobileNo);
         if(!userExistCheck){
             return new NextResponse("User does not Exists",{status:404})
         }
@@ -33,8 +33,6 @@ export async function POST(req:NextRequest){
         const token = sign(
             {
                 userId,
-                name,
-                mobileNo,
                 meterId
             },
             secret,{

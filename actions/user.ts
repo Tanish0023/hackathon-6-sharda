@@ -3,16 +3,19 @@
 import { db } from "@/lib/db"
 
 export const userExist = async (
-    meterId: string
+  mobileNo: string,
+  meterId: string
 ) => {
-    const userData = await db.user.findUnique({
-        where:{
-            meterId
-        }
-    })
-        
-    return userData;
-}
+  const userData = await db.user.findFirst({
+    where: {
+      mobileNo: mobileNo,
+      meterId: meterId,
+    },
+  });
+
+  return userData;
+};
+
 
 export const changeIsSelling = async (
     userId: string,

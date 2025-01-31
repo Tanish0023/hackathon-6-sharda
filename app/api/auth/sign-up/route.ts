@@ -11,7 +11,7 @@ const MAX_AGE = 60 * 60 * 24 * 30;
 export async function POST(req: Request) {
   try {
     const { name, mobileNo, meterId, password, longitude, latitude } = await req.json();
-
+    
     // Validate inputs
     if (!name || !mobileNo || !meterId || !password) {
       return new NextResponse("Missing required fields", { status: 400 });
@@ -20,36 +20,40 @@ export async function POST(req: Request) {
     const saltRound = parseInt(process.env.SALT_ROUND || "10"); 
     const hashedPassword = await bcrypt.hash(password, saltRound);
 
-    const userExistCheck = await userExist(meterId);
-
+    const userExistCheck = await userExist(meterId, mobileNo);
+    
     if (userExistCheck) {
       return new NextResponse("Meter already exists", { status: 400 });
     }
 
     const {publicKey, cipherPrivateKey } = await generateKeyPair();
-    const cPrivateKey = await cipherPrivateKey;
+    
+    let userData;
 
-    const userData = await db.user.create({
-      data: {
-        name,
-        mobileNo,
-        password: hashedPassword,
-        meterId,
-        isSelling: false,
-        longitude,
-        latitude,
-        publicKey,
-        privateKey: cPrivateKey
-      },
-    });
+    try{
+      userData = await db.user.create({
+        data: {
+          name,
+          mobileNo,
+          password: hashedPassword,
+          meterId,
+          isSelling: false,
+          longitude,
+          latitude,
+          publicKey,
+          privateKey: cipherPrivateKey
+        },
+      });
+    }catch(error){
+      return new NextResponse("Meter already exists", { status: 400 });
+    }
+
     const { id: userId } = userData;
-
+    
     const secret = process.env.JWT_SECRET || "My-secret";
-
+    
     const tokenPayload = {
       userId,
-      name,
-      mobileNo,
       meterId,
     };
 
@@ -67,16 +71,15 @@ export async function POST(req: Request) {
 
     const userDataCookie = {
       userId,
-      name,
-      mobileNo,
       meterId,
     };
     
     const response = {
       message: "Authenticated!",
       userData: userDataCookie,
+      token:token
     };
-
+    
     return new Response(JSON.stringify(response), {
       status: 200,
       headers: { "Set-Cookie": serialized, "Content-Type": "application/json" },

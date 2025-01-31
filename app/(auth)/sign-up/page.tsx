@@ -88,8 +88,10 @@ export default function SignUpPage() {
       await axios
         .post("/api/auth/sign-up", value)
         .then((data) => {
+          console.log(data.data.userData.userId);
+          
           toast.success("Registration Successful!");
-          router.push(`/${data.data.userData.userId}`);
+          router.replace(`/${data.data.userData.userId}`);
         })
         .catch((error) => {
           const errorMessage = error?.response?.data || "An error occurred.";

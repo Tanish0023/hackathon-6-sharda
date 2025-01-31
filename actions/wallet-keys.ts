@@ -9,12 +9,9 @@ export async function generateKeyPair() {
     // Extract the public and private keys
     const privateKey = wallet.privateKey; // Private key
     const publicKey = wallet.address;    // Public key (Ethereum address)
-      
-    console.log("Public Key (Address):", publicKey);
-    console.log("Private Key:", privateKey); 
     
-    const cipherPrivateKey = encrypt(privateKey);
-
+    const cipherPrivateKey = await encrypt(privateKey);
+    
     return { publicKey, cipherPrivateKey };
 }
 

@@ -56,21 +56,19 @@ export async function POST(req: NextRequest) {
     });
 
     try {
-      const d = new Date();
-      console.log(`Random time: ${Math.random() * 100}`);
       
-      const price = await axios.post("http://172.32.16.159:8000/predict/");
+      // const price = await axios.post("http://172.32.16.159:8000/predict/");
 
-      console.log(`PRICE ${price}`);
+      // console.log(`PRICE ${price}`);
       
-      // await db.user.update({
-      //   where: { id: userId },
-      //   data: {
-      //     SellerCredit: {
-      //       decrement: sellCredit
-      //     }
-      //   }
-      // });
+      await db.user.update({
+        where: { id: userId },
+        data: {
+          SellerCredit: {
+            decrement: sellCredit
+          }
+        }
+      });
     } catch (err) { // Renamed the error variable to avoid conflict
       consoleError("[AI MODAL]: ", err); // Using the renamed consoleError function
       throw new Error("internal server error");

@@ -43,6 +43,8 @@ export default function SignUpPage() {
       await axios
         .post("/api/auth/sign-in", values)
         .then((data) => {
+          console.log(data);
+          
           toast.success("Login Successful!!");
           router.push(`/${data.data.userData.userId}`);
         })

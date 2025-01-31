@@ -1,27 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from "next/server";
+import { parse } from "cookie";
+import { jwtVerify } from 'jose';
 
-const allowedPaths = ['/sign-in', '/sign-up','/' ,'/_next', '/favicon.ico', '/api']; // Public routes and assets
+export async function middleware(req: Request) {
+  const cookies = parse(req.headers.get("cookie") || "");
+  const token = cookies.Auth; 
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl; // Current route path
-  const authToken = request.cookies.get('Auth'); // Get auth token from cookies
-
-  // Always allow public routes (sign-in, sign-up, static files, etc.)
-  if (allowedPaths.some((path) => pathname.startsWith(path))) {
+  const publicAssets = [
+    "/favicon.ico",
+    "/_next/static/",
+    '/sign-in', '/sign-up','/_next', '/favicon.ico', '/api'
+  ];
+  
+  if (publicAssets.some((path) => req.url.includes(path))) {
     return NextResponse.next();
   }
 
-  // If user is authenticated, allow access to protected routes
-  if (authToken) {
+  if (!token) {
+    return NextResponse.redirect(new URL("/sign-up", req.url)); // Redirect to login
+  }  
+  try {
+    const decoded = await jwtVerify(token, new TextEncoder().encode(process.env.JWT_SECRET || "My-secret"));
+    console.log(decoded.payload.userId);
+    
     return NextResponse.next();
+  } catch (error) {
+    return NextResponse.redirect(new URL("/sign-up", req.url)); // Redirect to login or unauthorized page
   }
-
-  // If user is not authenticated and trying to access a protected route, redirect to sign-in
-  const signInUrl = new URL('/sign-in', request.url);
-  return NextResponse.redirect(signInUrl);
 }
 
-// Apply middleware to all routes
 export const config = {
-  matcher: '/:path*', // Match all routes
+  matcher: "/:userId", // Apply the middleware to your protected routes
 };

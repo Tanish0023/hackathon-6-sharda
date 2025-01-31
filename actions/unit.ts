@@ -1,5 +1,4 @@
 import { db } from "@/lib/db"; // Adjust the path to your Prisma client
-import { fetchContractData } from "@/utils/blockchain";
 
 export async function updateUnits(userId: string, credits: number) {
   try {

@@ -1,6 +1,25 @@
+"use client"
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 const HomePage = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState("");
+
+  useEffect(() => {
+    // ✅ Read authentication status from headers
+    fetch("/")
+      .then((res) => res.headers)
+      .then((headers) => {
+        const authStatus = headers.get("X-User-Authenticated") === "true";
+        const id = headers.get("X-User-ID") || "";
+
+        setIsAuthenticated(authStatus);
+        setUserId(id);
+      });
+  }, []);
+
   return (
     <div className="bg-gray-900 min-h-screen">
 
@@ -8,16 +27,26 @@ const HomePage = () => {
       <nav className="bg-gray-800 text-white p-4 shadow-md sticky top-0 z-50 flex justify-between items-center">
         <div className="text-2xl font-bold">MyPlatform</div>
         <div className="space-x-4">
-          <Link href="/sign-in">
-            <button className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
-              Login
-            </button>
-          </Link>
-          <Link href="/sign-up">
-            <button className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors">
-              Sign Up
-            </button>
-          </Link>
+          {isAuthenticated ? (
+            <Link href={`/${userId}`}>
+              <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition-colors">
+                Dashboard
+              </button>
+            </Link>
+          ) : (
+            <>
+              <Link href="/sign-in">
+                <button className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors">
+                  Login
+                </button>
+              </Link>
+              <Link href="/sign-up">
+                <button className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-500 transition-colors">
+                  Sign Up
+                </button>
+              </Link>
+            </>
+          )}
         </div>
       </nav>
 
