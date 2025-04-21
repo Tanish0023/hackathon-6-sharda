@@ -213,7 +213,7 @@ const contractABI = [
 ];
 
 // Configuration
-const CONTRACT_ADDRESS = '0xE3Ca443c9fd7AF40A2B5a95d43207E763e56005F'; // Replace with the new address after redeploying
+const CONTRACT_ADDRESS = '0xd7Ca4e99F7C171B9ea2De80d3363c47009afaC5F'; // Replace with the new address after redeploying
 const PROVIDER_URL = 'https://eth-sepolia.g.alchemy.com/v2/5PdkNmU-khw3HZ5uPlRZkVnD9SkG6Bo7';
 const ADMIN_PRIVATE_KEY = "0xc9980858da1db9c205ba7a875d10d1b9b7caea47b46172a226d9bd16edf9f689";
 

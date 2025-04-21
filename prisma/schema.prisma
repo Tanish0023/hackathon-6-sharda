@@ -18,8 +18,7 @@ model User {
     tempUnits  Float? @default(0)
     totalUnits Float? @default(0)
 
-    buyerCredit  Int? @default(0)
-    SellerCredit Int? @default(0)
+    credit  Int? @default(0)
 
     longitude Float?
     latitude  Float?

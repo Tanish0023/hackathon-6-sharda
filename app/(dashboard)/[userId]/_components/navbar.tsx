@@ -17,7 +17,7 @@ const Navbar = () => {
       setLoading(true); // Start loading
       const response = await axios.post("/api/user"); // Make sure this endpoint returns totalCredits
       const userData = response.data; // Ensure your API sends credits in this format
-      setTotalCredits(userData.SellerCredit); // Update credits from API response
+      setTotalCredits(userData.credit);
     } catch (error) {
       console.error("Failed to fetch seller credits:", error);
     } finally {

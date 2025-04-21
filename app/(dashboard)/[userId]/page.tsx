@@ -1,81 +1,80 @@
 "use client";
 
-import { addCredits, getBalance } from "@/actions/blockchain-interact";
 import { Button } from "@/components/ui/button";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 
 interface UserData {
-  userId: string;
+  id: string;
   totalUnits?: number;
+  credit?: number;
 }
 
-// API calls with proper error handling
-const getTotalEnergyUnit = async (): Promise<number> => {
+// Fetch user data
+const getUserData = async (): Promise<UserData | null> => {
   try {
     const response = await axios.post<UserData>("/api/user");
-    return response.data.totalUnits || 0;
+    return response.data;
   } catch (error) {
-    console.error("Error fetching total energy units:", error);
-    toast.error("Failed to fetch energy data");
-    return 0;
+    console.error("Error fetching user data:", error);
+    toast.error("Failed to fetch user data");
+    return null;
   }
 };
 
-const getTotalCredit = async (): Promise<string> => {
+const addCredit = async (userId: string, amount: number): Promise<boolean> => {
   try {
-    const response = await axios.post<UserData>("/api/user");
-    const userCredits = await getBalance(response.data.userId);
-    if (userCredits === "0") {
-      console.log("No credits yet for user:", response.data.userId);
-    }
-    return userCredits;
+    const response = await axios.put("/api/user", {
+      userId,
+      amount,
+    });
+    return response.data.success || false;
   } catch (error) {
-    console.error("Error fetching total credits:", error);
-    toast.error("Failed to fetch credits");
-    return "0";
+    console.error("Error adding credit:", error);
+    toast.error("Failed to add credit");
+    return false;
   }
 };
 
 export default function Home() {
   const [totalEnergy, setTotalEnergy] = useState<number>(0);
-  const [credits, setCredits] = useState<string>("0");
+  const [credits, setCredits] = useState<number>(0);
+  const [userId, setUserId] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Fetch initial data
-  useEffect(() => {
-    const fetchInitialData = async () => {
-      setIsLoading(true);
-      try {
-        const [energyUnits, creditAmount] = await Promise.all([
-          getTotalEnergyUnit(),
-          getTotalCredit(),
-        ]);
-        setTotalEnergy(energyUnits);
-        setCredits(creditAmount);
-        if (creditAmount === "0") {
+  const fetchInitialData = async () => {
+    setIsLoading(true);
+    try {
+      const user = await getUserData();
+      if (user) {
+        setUserId(user.id);
+        setTotalEnergy(user.totalUnits || 0);
+        setCredits(user.credit || 0);
+        if (!user.credit || user.credit === 0) {
           toast("Welcome! Start contributing energy to earn credits!");
         }
-      } catch (error) {
-        console.error("Error in initial data fetch:", error);
-        toast.error("Failed to load initial data");
-      } finally {
-        setIsLoading(false);
       }
-    };
+    } catch (error) {
+      toast.error("Failed to load user data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchInitialData();
   }, []);
 
-  // Update handlers
   const updateEnergyData = async () => {
     setIsLoading(true);
     try {
-      const totalUnits = await getTotalEnergyUnit();
-      setTotalEnergy(totalUnits);
-      toast.success("Energy data refreshed!");
-    } catch (error) {
+      const user = await getUserData();
+      if (user) {
+        setTotalEnergy(user.totalUnits || 0);
+        toast.success("Energy data refreshed!");
+      }
+    } catch {
       toast.error("Failed to refresh energy data");
     } finally {
       setIsLoading(false);
@@ -85,10 +84,12 @@ export default function Home() {
   const updateCreditData = async () => {
     setIsLoading(true);
     try {
-      const totalCredits = await getTotalCredit();
-      setCredits(totalCredits);
-      toast.success("Credits refreshed!");
-    } catch (error) {
+      const user = await getUserData();
+      if (user) {
+        setCredits(user.credit || 0);
+        toast.success("Credits refreshed!");
+      }
+    } catch {
       toast.error("Failed to refresh credits");
     } finally {
       setIsLoading(false);
@@ -96,20 +97,24 @@ export default function Home() {
   };
 
   const addEnergyCredit = async () => {
+    if (!userId) {
+      toast.error("User ID not available");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      const response = await axios.post<UserData>("/api/user");
-      const result = await addCredits(response.data.userId, 1);
-      
-      if (result.success) {
+      const success = await addCredit(userId, 1);
+      if (success) {
         toast.success("1 credit added for your energy contribution!");
-        const newCredits = await getTotalCredit();
-        setCredits(newCredits);
+        const user = await getUserData();
+        if (user) {
+          setCredits(user.credit || 0);
+        }
       } else {
-        toast.error(result.error || "Failed to add credit");
+        toast.error("Failed to add credit");
       }
-    } catch (error) {
-      console.error("Error adding credit:", error);
+    } catch {
       toast.error("An error occurred while adding credit");
     } finally {
       setIsLoading(false);
@@ -118,7 +123,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 py-10 px-6">
-      {/* Energy Dashboard */}
+      {/* Energy Section */}
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 mb-6">
         <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800 dark:text-gray-200">
           Energy Dashboard
@@ -145,7 +150,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Credit Dashboard */}
+      {/* Credit Section */}
       <div className="max-w-4xl mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 mb-6">
         <h1 className="text-3xl font-semibold text-center mb-6 text-gray-800 dark:text-gray-200">
           Credit Dashboard
@@ -158,7 +163,7 @@ export default function Home() {
             {credits} Credits
           </div>
           <p className="mt-4 text-gray-500 dark:text-gray-400">
-            {credits === "0"
+            {credits === 0
               ? "Start contributing energy to earn credits!"
               : "Credits earned for your energy contributions!"}
           </p>

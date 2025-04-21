@@ -38,7 +38,7 @@ export async function updateUnits(userId: string, credits: number) {
             tempUnits: {
                 decrement: 1
             },
-            SellerCredit: {
+            credit: {
               increment: 1 // Increment seller credits
             },
           },
